@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/main.css') }}"
+        />
+        <title>{% block title %}My Webpage{% endblock %}</title>
+    </head>
+    <body>
+        <header>
+            <div class="header-left">
+                <a href="/" id="uottawa">UOttawa Health Club</a>
+            </div>
+            <div class="header-right">
+                {% if 'username' in session %}
+                <span>Welcome, {{ session['username'] }}</span>
+                <a href="/logout">LOGOUT</a>
+                {% else %}
+                <a id="become-a-member" href="/register">Become A Member</a>
+                <a href="/login">LOGIN</a>
+                {% endif %}
+            </div>
+        </header>
+        <main>{% block content %} {% endblock %}</main>
+    </body>
+</html>

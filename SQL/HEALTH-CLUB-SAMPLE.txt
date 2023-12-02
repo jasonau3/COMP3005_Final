@@ -1,0 +1,73 @@
+-- Insert into users
+INSERT INTO users (username, user_password, user_role) VALUES ('bad bunny', 'password123', 'Member');
+
+-- Insert into administrators
+INSERT INTO administrators (admin_name) VALUES ('kndrck_lmr');
+
+-- Insert into members
+INSERT INTO members (first_name, last_name, fitness_goals, age, weight, height) VALUES ('lavender', 'azfat', 'attain a cake factory', 20, 70, 170);
+
+-- Insert into fitness_achievement
+INSERT INTO fitness_achievement (description) VALUES ('sculpt a fataz');
+
+-- Insert into trainers
+INSERT INTO trainers (trainer_name) VALUES ('plybycrti');
+
+-- Insert into classes
+INSERT INTO classes (rating, session_date) VALUES (5, '2023-12-01');
+
+-- Insert into billing
+INSERT INTO billing (cost_of_membership, last_date_payed, loyalty_points) VALUES (50, '2023-12-01', 100);
+
+-- Insert into fitness_eqp
+INSERT INTO fitness_eqp (recent_maintenance_date) VALUES ('2023-12-01');
+
+-- Insert into room_bookings
+INSERT INTO room_bookings (room_number, start_time, end_time) VALUES (101, '2023-12-01 09:00:00', '2023-12-01 10:00:00');
+
+-- Insert into personal_training 
+INSERT INTO personal_training (member_id, trainer_id, session_date, notes) VALUES (1, 1, '2023-12-01 10:00:00', 'GYAAAT FACTORY');
+
+-- ##### ALL OF THESE BELOW ARE RELATIONS #####
+
+-- Insert into achieved_by 
+INSERT INTO achieved_by (achievement_id, member_id) VALUES (1, 1);
+
+-- Insert into is_member
+INSERT INTO is_member (member_id, user_id) VALUES (1, 1);
+
+-- Insert into is_admin 
+INSERT INTO is_admin (admin_id, user_id) VALUES (1, 1);
+
+-- Insert into is_trainer
+INSERT INTO is_trainer (trainer_id, user_id) VALUES (1, 1);
+
+-- Insert into taught_by 
+INSERT INTO taught_by (trainer_id, session_id) VALUES (1, 1);
+
+-- Insert into registers_classes 
+INSERT INTO registers_classes (session_id, member_id) VALUES (1, 1);
+
+-- Insert into oversees_classes 
+INSERT INTO oversees_classes (session_id, admin_id) VALUES (1, 1);
+
+-- Insert into manage_bill 
+INSERT INTO manage_bill (admin_id, bill_id) VALUES (1, 1);
+
+-- Insert into manage_eqp
+INSERT INTO manage_eqp (admin_id, equipment_id) VALUES (1, 1);
+
+-- Insert into manage_bookings 
+INSERT INTO manage_bookings (admin_id, booking_id) VALUES (1, 1);
+
+-- Insert into register_training 
+INSERT INTO register_training (session_id, member_id) VALUES (1, 1);
+
+-- Insert into conducts 
+INSERT INTO conducts (session_id, trainer_id) VALUES (1, 1);
+
+-- Insert into oversees_training
+INSERT INTO oversees_training (session_id, admin_id) VALUES (1, 1);
+
+-- Insert into has_bill 
+INSERT INTO has_bill (bill_id, member_id) VALUES (1, 1);

@@ -1,0 +1,239 @@
+-- users
+CREATE TABLE IF NOT EXISTS users (
+	user_id 		SERIAL,
+	username 	  	VARCHAR(30) UNIQUE NOT NULL,
+	user_password 	VARCHAR(30) NOT NULL,
+	user_role 		VARCHAR(10) NOT NULL CHECK (user_role = 'Member' OR user_role = 'Trainer' OR user_role = 'Admin'),
+	
+	PRIMARY KEY (user_id)
+);
+
+-- room_bookings
+CREATE TABLE IF NOT EXISTS room_bookings (
+	booking_id 			SERIAL,
+	room_number 	  		INTEGER,
+	start_time			TIMESTAMP,
+	end_time			TIMESTAMP,
+	PRIMARY KEY (booking_id)
+);
+
+-- administrators
+CREATE TABLE IF NOT EXISTS administrators (
+	admin_id 		SERIAL,
+	admin_name 	  	VARCHAR(50),
+	
+	PRIMARY KEY (admin_id)
+);
+
+-- member
+CREATE TABLE IF NOT EXISTS members (
+	member_id 		SERIAL,
+	first_name 		VARCHAR(50),
+	last_name 		VARCHAR(50),
+	fitness_goals 	VARCHAR(500),
+	age 			INTEGER CHECK (age > 0 AND age < 150),
+	weight 			INTEGER,
+	height 			INTEGER,
+	
+	PRIMARY KEY (member_id)
+);
+
+-- fitness achievement
+CREATE TABLE IF NOT EXISTS fitness_achievement (
+	achievement_id 	SERIAL,
+	description 	VARCHAR(100),
+	
+	PRIMARY KEY (achievement_id)
+);
+
+-- achieved_by
+CREATE TABLE IF NOT EXISTS achieved_by (
+	achievement_id 	INTEGER,
+	member_id 		INTEGER,
+	
+	PRIMARY KEY (achievement_id, member_id),
+	FOREIGN KEY (achievement_id) REFERENCES fitness_achievement,
+	FOREIGN KEY (member_id) REFERENCES members
+);
+
+-- is_member
+CREATE TABLE IF NOT EXISTS is_member (
+	member_id 		INTEGER,
+	user_id 		INTEGER,
+	
+	PRIMARY KEY (member_id, user_id),
+	FOREIGN KEY (member_id) REFERENCES members,
+	FOREIGN KEY (user_id) REFERENCES users
+);
+
+-- is_admin
+CREATE TABLE IF NOT EXISTS is_admin (
+	admin_id 		INTEGER,
+	user_id 		INTEGER,
+	
+	PRIMARY KEY (admin_id, user_id),
+	FOREIGN KEY (admin_id) REFERENCES administrators,
+	FOREIGN KEY (user_id) REFERENCES users
+);
+
+-- trainer
+CREATE TABLE IF NOT EXISTS trainers (
+	trainer_id 		SERIAL,
+	trainer_name 	VARCHAR(30),
+	
+	PRIMARY KEY (trainer_id)
+);
+
+-- is_trainer
+CREATE TABLE IF NOT EXISTS is_trainer (
+	trainer_id 		INTEGER,
+	user_id 		INTEGER,
+
+	PRIMARY KEY (trainer_id, user_id),
+	FOREIGN KEY (trainer_id) REFERENCES trainers,
+	FOREIGN KEY (user_id) REFERENCES users
+);
+
+-- classes
+CREATE TABLE IF NOT EXISTS classes (
+	session_id 		SERIAL,
+	rating 			INTEGER,
+	session_date 	DATE,
+	booking_id		INTEGER,
+	
+	PRIMARY KEY (session_id),
+	FOREIGN KEY (booking_id) REFERENCES room_bookings
+);
+
+-- taught by
+CREATE TABLE IF NOT EXISTS taught_by (
+	trainer_id 		INTEGER,
+	session_id 		INTEGER,
+	
+	PRIMARY KEY (trainer_id, session_id),
+	FOREIGN KEY (trainer_id) REFERENCES trainers,
+	FOREIGN KEY (session_id) REFERENCES classes
+);
+
+-- register class
+CREATE TABLE IF NOT EXISTS registers_classes (
+	session_id 		INTEGER,
+	member_id 		INTEGER,
+	
+	PRIMARY KEY (session_id, member_id),
+	FOREIGN KEY (session_id) REFERENCES classes,
+	FOREIGN KEY (member_id) REFERENCES members
+);
+
+-- oversees classes
+CREATE TABLE IF NOT EXISTS oversees_classes (
+	session_id 		INTEGER,
+	admin_id 		INTEGER,
+	
+	PRIMARY KEY (session_id, admin_id),
+	FOREIGN KEY (session_id) REFERENCES classes,
+	FOREIGN KEY (admin_id) REFERENCES administrators
+);
+
+
+-- billing
+CREATE TABLE IF NOT EXISTS billing (
+	bill_id 				SERIAL,
+	cost_of_membership 	  	INTEGER,
+	last_date_payed			DATE,
+	loyalty_points			INTEGER,
+	
+	PRIMARY KEY (bill_id)
+);
+
+-- manage_bill
+CREATE TABLE IF NOT EXISTS manage_bill (
+	admin_id 	INTEGER,
+	bill_id 	INTEGER,
+	
+	PRIMARY KEY (admin_id, bill_id),
+	FOREIGN KEY (admin_id) REFERENCES administrators,
+	FOREIGN KEY (bill_id) REFERENCES billing
+);
+
+-- fitness_eqp
+CREATE TABLE IF NOT EXISTS fitness_eqp (
+	equipment_id 				SERIAL,
+	recent_maintenance_date		DATE,
+	
+	PRIMARY KEY (equipment_id)
+);
+
+-- manage_eqp
+CREATE TABLE IF NOT EXISTS manage_eqp (
+	admin_id 			INTEGER,
+	equipment_id 		INTEGER,
+	
+	PRIMARY KEY (admin_id, equipment_id),
+	FOREIGN KEY (admin_id) REFERENCES administrators,
+	FOREIGN KEY (equipment_id) REFERENCES fitness_eqp
+);
+
+-- manage_bookings
+CREATE TABLE IF NOT EXISTS manage_bookings (
+	admin_id 	INTEGER,
+	booking_id 	INTEGER,
+	
+	PRIMARY KEY (admin_id, booking_id),
+	FOREIGN KEY (admin_id) REFERENCES administrators,
+	FOREIGN KEY (booking_id) REFERENCES room_bookings
+);
+
+-- personal_training
+CREATE TABLE IF NOT EXISTS personal_training (
+	session_id 			SERIAL,
+	member_id 	  		INTEGER,
+	trainer_id			INTEGER,
+	session_date		TIMESTAMP,
+	notes				VARCHAR(200),
+	booking_id			INTEGER,
+	
+	PRIMARY KEY (session_id),
+	FOREIGN KEY (booking_id) REFERENCES room_bookings
+);
+
+-- register_training
+CREATE TABLE IF NOT EXISTS register_training (
+	session_id 	INTEGER,
+	member_id 	INTEGER,
+	
+	PRIMARY KEY (session_id, member_id),
+	FOREIGN KEY (session_id) REFERENCES personal_training,
+	FOREIGN KEY (member_id) REFERENCES members
+);
+
+-- conducts
+CREATE TABLE IF NOT EXISTS conducts (
+	session_id 	INTEGER,
+	trainer_id 	INTEGER,
+	
+	PRIMARY KEY (session_id, trainer_id),
+	FOREIGN KEY (session_id) REFERENCES personal_training,
+	FOREIGN KEY (trainer_id) REFERENCES trainers
+);
+
+-- oversees_training
+CREATE TABLE IF NOT EXISTS oversees_training (
+	session_id 	INTEGER,
+	admin_id 	INTEGER,
+	
+	PRIMARY KEY (session_id, admin_id),
+	FOREIGN KEY (session_id) REFERENCES personal_training,
+	FOREIGN KEY (admin_id) REFERENCES administrators
+);
+
+-- has_bill
+CREATE TABLE IF NOT EXISTS has_bill (
+	bill_id 	INTEGER,
+	member_id 	INTEGER,
+	
+	PRIMARY KEY (bill_id, member_id),
+	FOREIGN KEY (bill_id) REFERENCES billing,
+	FOREIGN KEY (member_id) REFERENCES members
+);
+

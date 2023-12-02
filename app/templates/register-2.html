@@ -1,0 +1,30 @@
+{% extends 'base.html' %} {% block title %}Register 2 - UOttawa Health Club{%
+endblock %} {% block content %}
+<main>
+    <form action="handle_register2" method="post">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required />
+        </div>
+
+        <div>
+            <label for="password">Password:</label>
+            <input type="text" id="password" name="password" required />
+        </div>
+
+        <div>
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="">Select a role...</option>
+                <option value="Admin">Admin</option>
+                <option value="Member">Member</option>
+                <option value="Trainer">Trainer</option>
+            </select>
+        </div>
+
+        <div>
+            <button type="submit">START NOW</button>
+        </div>
+    </form>
+</main>
+{% endblock %}

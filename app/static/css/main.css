@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono&display=swap');
+
+body {
+    margin: 0;
+    font-family: 'Noto Sans Mono', monospace;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, #ff3f66, #d7002a);
+    padding: 20px 30px;
+    color: white;
+}
+
+.header-left {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.header-left a {
+    color: white;
+    text-decoration: none;
+}
+
+.header-right a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 18px;
+}
+
+.header-right a:hover {
+    text-decoration: underline;
+}
+
+#become-a-member {
+    font-weight: bold;
+    padding: 6px;
+    background-color: white;
+    color: #d7002a;
+}
+
+#uottawa {
+    text-align: center;
+    padding: 250px 0;
+    transition: text-shadow 0.3s ease;
+}
+
+#uottawa:hover {
+    text-shadow: 0 0 10px darkred;
+}
