@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
 	user_id 		SERIAL,
 	username 	  	VARCHAR(30) UNIQUE NOT NULL,
 	user_password 	VARCHAR(30) NOT NULL,
-	user_role 		VARCHAR(10) NOT NULL CHECK (user_role = 'Member' OR user_role = 'Trainer' OR user_role = 'Admin'),
+	user_role 		VARCHAR(30) NOT NULL CHECK (user_role = 'Member' OR user_role = 'Trainer' OR user_role = 'Administrator'),
 	
 	PRIMARY KEY (user_id)
 );
