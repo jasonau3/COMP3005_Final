@@ -11,9 +11,10 @@ CREATE TABLE IF NOT EXISTS users (
 -- room_bookings
 CREATE TABLE IF NOT EXISTS room_bookings (
 	booking_id 			SERIAL,
-	room_number 	  		INTEGER,
+	room_number 	  	INTEGER,
 	start_time			TIMESTAMP,
 	end_time			TIMESTAMP,
+	
 	PRIMARY KEY (booking_id)
 );
 
@@ -32,8 +33,9 @@ CREATE TABLE IF NOT EXISTS members (
 	last_name 		VARCHAR(50),
 	fitness_goals 	VARCHAR(500),
 	age 			INTEGER CHECK (age > 0 AND age < 150),
-	weight 			INTEGER,
-	height 			INTEGER,
+	weight 			NUMERIC,
+	height 			NUMERIC,
+	BMI 			NUMERIC(5,2),
 	
 	PRIMARY KEY (member_id)
 );
@@ -187,8 +189,6 @@ CREATE TABLE IF NOT EXISTS manage_bookings (
 -- personal_training
 CREATE TABLE IF NOT EXISTS personal_training (
 	session_id 			SERIAL,
-	member_id 	  		INTEGER,
-	trainer_id			INTEGER,
 	session_date		TIMESTAMP,
 	notes				VARCHAR(200),
 	booking_id			INTEGER,
@@ -237,3 +237,37 @@ CREATE TABLE IF NOT EXISTS has_bill (
 	FOREIGN KEY (member_id) REFERENCES members
 );
 
+-- trigger to add loyalty points whenever they register for a class/personal training
+CREATE OR REPLACE FUNCTION update_loyalty_points()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE billing
+    SET loyalty_points = loyalty_points + 100
+    WHERE bill_id = (SELECT bill_id FROM has_bill WHERE member_id = NEW.member_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_loyalty_class
+AFTER INSERT ON registers_classes
+FOR EACH ROW
+EXECUTE FUNCTION update_loyalty_points();
+
+CREATE TRIGGER trg_update_loyalty_training
+AFTER INSERT ON register_training
+FOR EACH ROW
+EXECUTE FUNCTION update_loyalty_points();
+
+-- trigger to calculate BMI
+CREATE OR REPLACE FUNCTION calculate_bmi()
+RETURNS TRIGGER AS $$
+BEGIN
+	NEW.BMI := NEW.weight / ((NEW.height / 100.0) * (NEW.height / 100.0));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_calculate_bmi
+BEFORE INSERT OR UPDATE ON members
+FOR EACH ROW
+EXECUTE FUNCTION calculate_bmi();

@@ -4,6 +4,7 @@ from psycopg2 import pool
 import traceback
 from flask import session
 import secrets
+from datetime import datetime
 
 app = Flask(__name__)
 secret_key = secrets.token_urlsafe(16)
@@ -11,7 +12,7 @@ app.secret_key = secret_key
 
 # database pool - use this instead of connections since its more efficient
 db_pool = psycopg2.pool.SimpleConnectionPool(1, 20,
-                                             database="final_dec1",
+                                             database="final_december3",
                                              user="postgres",
                                              password="postgres",
                                              host="localhost",
@@ -62,18 +63,57 @@ def handle_register2():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        query = "INSERT INTO users (username, user_password, user_role) VALUES (%s, %s, %s )"
+        query = "INSERT INTO users (username, user_password, user_role) VALUES (%s, %s, %s) RETURNING user_id"
         cur.execute(query, (session["username"], session["password"], session["role"])) 
 
+        # Get user_id for the person who just submitted the query
+        user_id = cur.fetchone()[0]
+
         if role == 'Administrator':
-            admin_query = "INSERT INTO administrators (admin_name) VALUES (%s)"
+            # Insert into administrators table
+            admin_query = "INSERT INTO administrators (admin_name) VALUES (%s) RETURNING admin_id"
             cur.execute(admin_query, (session['first_name'] + "_" +session['last_name'],))
-        elif role == 'Member':
-            member_query = "INSERT INTO members (first_name, last_name, fitness_goals, age, weight, height) VALUES (%s, %s, %s, %s, %s, %s)"
-            cur.execute(member_query, (session['first_name'], session['last_name'], session['fitness_goal'], session['age'], session['weight'], session['height']))
+
+            # Get admin_id for the person who just submitted the query
+            admin_id = cur.fetchone()[0]
+
+            # Insert into is_admin table
+            admin_query = "INSERT INTO is_admin (user_id, admin_id) VALUES (%s, %s)" 
+            cur.execute(admin_query, (user_id,admin_id))
         elif role == 'Trainer':
-            trainer_query = "INSERT INTO trainers (trainer_name) VALUES (%s)"
+            # Insert into trainers table
+            trainer_query = "INSERT INTO trainers (trainer_name) VALUES (%s) RETURNING trainer_id"
             cur.execute(trainer_query, (session['first_name'] + "_" +session['last_name'],))
+
+            # Get trainer_id for the person who just submitted the query
+            trainer_id = cur.fetchone()[0]
+
+            # Insert into is_trainer table
+            trainer_query = "INSERT INTO is_trainer (user_id, trainer_id) VALUES (%s, %s)"
+            cur.execute(trainer_id, (user_id,trainer_id))
+        elif role == 'Member':
+            # Insert into members table
+            member_query = "INSERT INTO members (first_name, last_name, fitness_goals, age, weight, height) VALUES (%s, %s, %s, %s, %s, %s) RETURNING member_id"
+            cur.execute(member_query, (session['first_name'], session['last_name'], session['fitness_goal'], session['age'], session['weight'], session['height']))
+
+            # Get member_id for the person who just submitted the query
+            member_id = cur.fetchone()[0]
+
+            # Insert into is_member table
+            member_query = "INSERT INTO is_member (user_id, member_id) VALUES (%s, %s)"
+            cur.execute(member_query, (user_id,member_id))
+
+            # Insert into billing table
+            bill_query = "INSERT INTO billing (cost_of_membership, last_date_payed, loyalty_points) VALUES (%s, %s, %s) RETURNING bill_id"
+            today_date = datetime.today().strftime('%Y-%m-%d')
+            cur.execute(bill_query, (50, today_date, 0))
+
+            # Get bill_id for the person who just submitted the query
+            bill_id = cur.fetchone()[0]
+
+            # Insert into has_bill table
+            bill_query = "INSERT INTO has_bill (bill_id, member_id) VALUES (%s, %s)"
+            cur.execute(bill_query, (bill_id,member_id))
 
         conn.commit()
         cur.close()
@@ -116,4 +156,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug = True)
