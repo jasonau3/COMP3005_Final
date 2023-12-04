@@ -12,9 +12,9 @@ app.secret_key = secret_key
 
 # database pool - use this instead of connections since its more efficient
 db_pool = psycopg2.pool.SimpleConnectionPool(1, 20,
-                                             database="final_december3",
+                                             database="Final_December3",
                                              user="postgres",
-                                             password="postgres",
+                                             password="myPOSTGRES",
                                              host="localhost",
                                              port="5432")
 
@@ -26,7 +26,6 @@ def release_db_connection(conn):
 
 @app.route('/')
 def index():
-        
     return render_template('index.html')
 
 @app.route('/register', methods=['GET'])
@@ -154,6 +153,26 @@ def handle_login():
 def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
+    
+    
+    
+@app.route('/ptSignUp')
+def ptSignUp():
+    #session['username'] = username
+    #session['role'] = role
+    
+    
+    
+    return render_template('ptSignUp.html')
+    
+#@app.route('/ptMember', methods=['POST'])
+#def ptMember():
+    
+    
+    
+    
+    
+    
 
 if __name__ == '__main__':
     app.run(debug = True)

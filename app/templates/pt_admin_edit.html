@@ -1,0 +1,39 @@
+{% extends 'base.html' %} {% block title %}Personal Training (Admin) - UOttawa Health Club{%
+endblock %} {% block content %}
+<main>
+    
+	<!-- Ask Jason how he implemented his previous page like this -->
+	<!-- Also there's a link to the main menu in the trainer name and id spots?? Idk why -->
+	<h1>Personal Training</h1>
+	<p>TRAINER: </p>
+	{% if 'trainer_name' in session %}
+	<span>{{ session['trainer_name']}} {{ session['trainer_id']}}</span>
+	{% endif %}
+	
+	
+	<!-- Additional Notes for Future Implementation
+		1. Date will be manually selected by the user
+		2. Notes is always locked for the user, visible, but locked
+		3. Write code to tell whether the user has already registered or not (to show cancel button)
+	
+	-->
+	
+	<form action="ptAdmin" method="post">
+        <div>
+            <label>Date:</label>
+            <input type="text" id="date" name="date" required />
+        </div>
+
+        <div>
+            <label>Notes:</label>
+            <input type="textarea" id="session_notes" name="notes" />
+        </div>
+		
+		<!-- Write some JavaScript or something to lock the inputs when the user isn't signed in -->
+        <div>
+            <button type="submit" id="cancel_admin">Cancel</button>
+			<button type="submit" id="register_admin">Save</button>
+        </div>
+    </form>
+</main>
+{% endblock %}
