@@ -12,7 +12,7 @@ app.secret_key = secret_key
 
 # database pool - use this instead of connections since its more efficient
 db_pool = psycopg2.pool.SimpleConnectionPool(1, 20,
-                                             database="final_december3",
+                                             database="Final_December4",
                                              user="postgres",
                                              password="postgres",
                                              host="localhost",
@@ -32,21 +32,36 @@ def index():
             conn = get_db_connection()
             cur = conn.cursor()
 
-            # TODO get schedules - consolidated into 1 group
-            # TODO get room bookings
-            # TODO get fitness equipment
+            # get schedules - consolidated into 1 group
+            cur.execute("SELECT * FROM classes")
+            classes = cur.fetchall()
+            print(classes)
+
+            cur.execute("SELECT * FROM personal_training")
+            personal_training = cur.fetchall()
+            print(personal_training)
+
+            # get room bookings
+            cur.execute("SELECT * FROM room_bookings")
+            room_bookings = cur.fetchall()
+            print(room_bookings)
+
+            # get fitness equipment
+            cur.execute("SELECT * FROM fitness_eqp")
+            fitness_eqp = cur.fetchall()
+            print(fitness_eqp)
 
             # get billings
             cur.execute("SELECT * FROM billing")
             billings = cur.fetchall()
-            print("billings: ")
+            print(billings)
+
 
             cur.close()
-            
-            pass
-            
     
-    return render_template('index.html')
+        return render_template('index.html', classes=classes, personal_training=personal_training, room_bookings=room_bookings, fitness_eqp=fitness_eqp, billings=billings)
+    else:
+        return render_template('index.html')
 
 @app.route('/register', methods=['GET'])
 def register():
@@ -205,8 +220,18 @@ def handle_login():
         
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.clear()
+
     return redirect(url_for('index'))
+
+@app.route('/class/<int:class_id>')
+def class_details(class_id):
+    print(session)
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    return render_template('class_details.html', class_id=class_id)
+
 
 if __name__ == '__main__':
     app.run(debug = True)

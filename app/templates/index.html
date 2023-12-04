@@ -1,6 +1,105 @@
 {% extends 'base.html' %} {% block title %}UOttawa Health Club{% endblock %} {%
 block content %}
 <section>
-    <h1 id="uottawa">uottawa best skool fr</h1>
+  {% if session["role"] == "Administrator" %}
+  <h2>Update Schedule 📆</h2>
+  <h1>TODO: ADD A NEW CLASS</h1>
+  {% if classes %}
+  <ul>
+    {% for class in classes %}
+    <li>
+      <div class="card">
+        <a href="/class/{{ class[0] }}">
+          <h3>Group Training</h3>
+          <p>Class ID #{{ class[0] }}</p>
+          <p>⭐️{{ class[1] }} out of 5⭐️</p>
+          <p>{{ class[2] }}</p>
+        </a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No classes available.</p>
+  {% endif %} {% if personal_training %}
+  <ul>
+    {% for training in personal_training %}
+    <li>
+      <div class="card">
+        <a href="/training/{{ training[0] }}">
+          <h3>Personal Training</h3>
+          <p>Training ID #{{ training[0] }}</p>
+          <p>⭐️{{ training[1] }} out of 5⭐️</p>
+          <p>{{ training[2] }}</p>
+        </a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No personal training available.</p>
+  {% endif %}
+
+  <h2>Room Bookings 🚪</h2>
+  <h1>TODO: ADD A NEW BOOKING</h1>
+  {% if room_bookings %}
+  <ul>
+    {% for room in room_bookings %}
+    <li>
+      <div class="card">
+        <a href="/room/{{ room[0] }}">
+          <h3>Room Booking</h3>
+          <p>Room #{{ room[1] }}</p>
+          <p>{{ room[2] }}</p>
+          <p>{{ room[3] }}</p>
+        </a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No room booking available.</p>
+  {% endif %}
+
+  <h2>Fitness Equipment 🏋️</h2>
+  <h1>TODO: ADD A NEW FITNESS EQP</h1>
+  {% if fitness_eqp %}
+  <ul>
+    {% for eqp in fitness_eqp %}
+    <li>
+      <div class="circle-card">
+        <a href="/fitness_eqp/{{ eqp[0] }}">
+          <p>{{ eqp[0] }}</p>
+        </a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No fitness equipment available.</p>
+  {% endif %}
+
+  <h2>Billings 💸</h2>
+  <h1>TODO: ADD A NEW BOOKING</h1>
+  {% if billings %}
+  <ul>
+    {% for bill in billings %}
+    <li>
+      <div class="circle-card">
+        <a href="/billings/{{ bill[0] }}">
+          <p>{{ bill[0] }}</p>
+        </a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No billings available.</p>
+  {% endif %} {% else %}
+
+  <div id="uottawa">
+    <h1>uottawa best skool fr</h1>
+  </div>
+  {% endif %}
 </section>
 {% endblock %}
