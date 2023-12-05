@@ -28,11 +28,10 @@ def release_db_connection(conn):
 def index():
     if 'username' in session:
         print(session)
+        conn = get_db_connection()
+        cur = conn.cursor()
         if session['role'] == 'Administrator':
-            conn = get_db_connection()
-            cur = conn.cursor()
-
-            # get schedules - consolidated into 1 group
+            # get schedules 
             cur.execute("SELECT * FROM classes")
             classes = cur.fetchall()
             print(classes)
@@ -61,7 +60,36 @@ def index():
     
             return render_template('index.html', classes=classes, personal_training=personal_training, room_bookings=room_bookings, fitness_eqp=fitness_eqp, billings=billings)
         elif session['role'] == 'Trainer':
-            return "TRAINER"
+            # get trainer_id
+            cur.execute("SELECT user_id FROM users WHERE username = %s", (session["username"],))
+            user_id = cur.fetchone()[0]
+
+            cur.execute("SELECT * FROM is_trainer WHERE user_id = %s", (user_id,))
+            session['trainer_id'] = cur.fetchone()[0]
+
+            # TODO get schedules for trainer - USING IDS
+            cur.execute("SELECT * FROM classes ")
+            classes = cur.fetchall()
+            print(classes)
+
+            cur.execute("SELECT * FROM personal_training")
+            personal_training = cur.fetchall()
+            print(personal_training)
+
+            # get trainees
+            query = """
+            SELECT DISTINCT rt.member_id
+            FROM conducts AS c
+            JOIN register_training AS rt ON c.session_id = rt.session_id
+            WHERE c.trainer_id = %s;
+            """
+            cur.execute(query, (session['trainer_id'],))
+            trainees = cur.fetchall()
+
+            cur.close()
+
+            return render_template('index.html', classes=classes, personal_training=personal_training, trainees=trainees)
+        
         elif session['role'] == 'Member':
             return "Member"
     else:
@@ -111,7 +139,6 @@ def handle_register():
             admin_query = "INSERT INTO is_admin (user_id, admin_id) VALUES (%s, %s)" 
             cur.execute(admin_query, (user_id,admin_id))
         elif role == 'Trainer':
-            print('trainer')
             # Insert into trainers table
             trainer_query = "INSERT INTO trainers (trainer_name) VALUES (%s) RETURNING trainer_id"
             cur.execute(trainer_query, (session['username'],))
@@ -316,23 +343,6 @@ def add_training():
 
     return redirect(url_for('training_details', training_id=new_training_id))
 
-
-@app.route('/class/<int:class_id>')
-def class_details(class_id):
-    print(session)
-    if 'username' not in session:
-        return redirect(url_for('index'))
-
-    return render_template('class_details.html', class_id=class_id)
-
-@app.route('/training/<int:training_id>')
-def training_details(training_id):
-    print(session)
-    if 'username' not in session:
-        return redirect(url_for('index'))
-
-    return render_template('training_details.html', training_id=training_id)
-
 @app.route('/add_equipment')
 def add_equipment():
     if 'username' not in session or session['role'] != 'Administrator':
@@ -344,10 +354,11 @@ def add_equipment():
         cur = conn.cursor()
 
         # Insert into training table
-        training_query = "INSERT INTO personal_training (session_date, booking_id, notes) VALUES (%s, %s, %s) RETURNING session_id"
-        cur.execute(training_query, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), booking_id, "N/A"))
+        query = "INSERT INTO fitness_eqp (recent_maintenance_date) VALUES (%s) RETURNING equipment_id"
+        formatted_date = datetime.now().strftime('%Y-%m-%d')
+        cur.execute(query, (formatted_date,))
 
-        new_training_id = cur.fetchone()[0]
+        new_fitness_eqp = cur.fetchone()[0]
 
         conn.commit()
     except Exception as e:
@@ -361,7 +372,35 @@ def add_equipment():
         if conn:
             release_db_connection(conn)
     
-    return redirect(url_for('equipment_details', class_id=new_training_id))
+    return redirect(url_for('equipment_details', fitness_eqp_id=new_fitness_eqp))
+
+@app.route('/class/<int:class_id>')
+def class_details(class_id):
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    return render_template('class_details.html', class_id=class_id)
+
+@app.route('/training/<int:training_id>')
+def training_details(training_id):
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    return render_template('training_details.html', training_id=training_id)
+
+@app.route('/fitness_eqp/<int:fitness_eqp_id>')
+def equipment_details(fitness_eqp_id):
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    return render_template('equipment_details.html', fitness_eqp_id=fitness_eqp_id)
+
+@app.route('/billings/<int:billing_id>')
+def billing_details(billing_id):
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    return render_template('billing_detail.html', billing_id=billing_id)
 
 if __name__ == '__main__':
     app.run(debug = True)
