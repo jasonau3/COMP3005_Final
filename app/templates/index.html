@@ -102,6 +102,13 @@ block content %}
     </ul>
     {% else %}
     <p>No billings available.</p>
+    {% endif %} {% elif session["role"] == "Trainer" %}
+
+    <h3>Your Training Sessions</h3>
+    {% if trainer_sessions %}
+    <ul class="scrollable-list"></ul>
+    {% else %}
+    <p>No training sessions found.</p>
     {% endif %} {% else %}
 
     <div id="uottawa">
