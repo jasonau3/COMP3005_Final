@@ -104,11 +104,139 @@ block content %}
     <p>No billings available.</p>
     {% endif %} {% elif session["role"] == "Trainer" %}
 
-    <h3>Your Training Sessions</h3>
-    {% if trainer_sessions %}
-    <ul class="scrollable-list"></ul>
+    <h3>Your Training Sessions 📆</h3>
+    {% if classes %}
+    <ul class="scrollable-list">
+        {% for class in classes %}
+        <li>
+            <div class="card">
+                <a href="/class/{{ class[0] }}">
+                    <h3>Group Training</h3>
+                    <p>Class ID #{{ class[0] }}</p>
+                    <p>⭐️{{ class[1] }} out of 5⭐️</p>
+                    <p>{{ class[2] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
     {% else %}
-    <p>No training sessions found.</p>
+    <p>No classes available.</p>
+    {% endif %} {% if personal_training %}
+    <ul class="scrollable-list">
+        {% for training in personal_training %}
+        <li>
+            <div class="card">
+                <a href="/training/{{ training[0] }}">
+                    <h3>Personal Training</h3>
+                    <p>Training ID #{{ training[0] }}</p>
+                    <p>{{ training[1] }}</p>
+                    <p>Notes: {{ training[2] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No personal training available.</p>
+    {% endif %}
+    <h2>Trainees 🌱</h2>
+    {% if trainees %}
+    <ul class="scrollable-list">
+        {% for trainee in trainees %}
+        <li>
+            <div class="circle-card">
+                <a href="/member/{{ trainee[0] }}">
+                    <p>{{ trainee[0] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No trainees assigned.</p>
+    {% endif %} {% elif session["role"] == "Member" %}
+
+    <div class="subtitle-container">
+        <h2>Billing: TODO due TODO 📆</h2>
+        <div class="subtitle-container-right">
+            <h3 style="padding-right: 30px">✨ TODO loyalty points ✨</h3>
+        </div>
+    </div>
+
+    <h3>Your Sessions 📆</h3>
+    {% if my_classes %}
+    <ul class="scrollable-list">
+        {% for class in my_classes %}
+        <li>
+            <div class="card">
+                <a href="/class/{{ class[0] }}">
+                    <h3>Group Training</h3>
+                    <p>Class ID #{{ class[0] }}</p>
+                    <p>⭐️{{ class[1] }} out of 5⭐️</p>
+                    <p>{{ class[2] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No classes registered.</p>
+    {% endif %} {% if my_personal_training %}
+    <ul class="scrollable-list">
+        {% for training in my_personal_training %}
+        <li>
+            <div class="card">
+                <a href="/training/{{ training[0] }}">
+                    <h3>Personal Training</h3>
+                    <p>Training ID #{{ training[0] }}</p>
+                    <p>{{ training[1] }}</p>
+                    <p>Notes: {{ training[2] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No personal training registered.</p>
+    {% endif %}
+
+    <h3>All Upcoming Sessions 📆</h3>
+    {% if classes %}
+    <ul class="scrollable-list">
+        {% for class in classes %}
+        <li>
+            <div class="card">
+                <a href="/class/{{ class[0] }}">
+                    <h3>Group Training</h3>
+                    <p>Class ID #{{ class[0] }}</p>
+                    <p>⭐️{{ class[1] }} out of 5⭐️</p>
+                    <p>{{ class[2] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No classes available.</p>
+    {% endif %}
+
+    <h3>Your Achievements 🏅</h3>
+    {% if my_achievements %}
+    <ul class="scrollable-list">
+        {% for achievement in my_achievements %}
+        <li>
+            <div class="circle-card">
+                <div class="tooltip">
+                    <p>{{ achievement[0] }}</p>
+                    <span class="tooltiptext">{{ achievement[3] }}</span>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No achievements yet!</p>
     {% endif %} {% else %}
 
     <div id="uottawa">

@@ -31,6 +31,10 @@ def index():
         conn = get_db_connection()
         cur = conn.cursor()
         if session['role'] == 'Administrator':
+            # get user_id
+            cur.execute("SELECT user_id FROM users WHERE username = %s", (session["username"],))
+            session["user_id"] = cur.fetchone()[0]
+
             # get schedules 
             cur.execute("SELECT * FROM classes")
             classes = cur.fetchall()
@@ -60,19 +64,20 @@ def index():
     
             return render_template('index.html', classes=classes, personal_training=personal_training, room_bookings=room_bookings, fitness_eqp=fitness_eqp, billings=billings)
         elif session['role'] == 'Trainer':
-            # get trainer_id
+            # get user_id
             cur.execute("SELECT user_id FROM users WHERE username = %s", (session["username"],))
-            user_id = cur.fetchone()[0]
+            session["user_id"] = cur.fetchone()[0]
 
-            cur.execute("SELECT * FROM is_trainer WHERE user_id = %s", (user_id,))
+            # get trainer_id
+            cur.execute("SELECT * FROM is_trainer WHERE user_id = %s", (session["user_id"],))
             session['trainer_id'] = cur.fetchone()[0]
 
-            # TODO get schedules for trainer - USING IDS
-            cur.execute("SELECT * FROM classes ")
+            # get schedules for trainer - USING CURRENT TRAINER ID  
+            cur.execute("SELECT * FROM conducts WHERE trainer_id = %s", (session['trainer_id'],))
             classes = cur.fetchall()
             print(classes)
 
-            cur.execute("SELECT * FROM personal_training")
+            cur.execute("SELECT * FROM taught_by WHERE trainer_id = %s", (session['trainer_id'],))
             personal_training = cur.fetchall()
             print(personal_training)
 
@@ -91,7 +96,54 @@ def index():
             return render_template('index.html', classes=classes, personal_training=personal_training, trainees=trainees)
         
         elif session['role'] == 'Member':
-            return "Member"
+            # get user_id
+            cur.execute("SELECT user_id FROM users WHERE username = %s", (session["username"],))
+            session["user_id"] = cur.fetchone()[0]
+
+            # get member_id
+            cur.execute("SELECT * FROM is_member WHERE user_id = %s", (session["user_id"],))
+            session['member_id'] = cur.fetchone()[0]
+
+            # get billing
+            cur.execute("SELECT * FROM has_bill WHERE member_id = %s", (session['member_id'],))
+            my_billings = cur.fetchone()
+            print("BILLINGS")
+            print(my_billings)
+            # TODO GET LOYALTY POINTS
+
+            # get member_id
+            cur.execute("SELECT * FROM is_member WHERE user_id = %s", (session["user_id"],))
+            session['member_id'] = cur.fetchone()[0]
+
+            # get schedules for member - USING CURRENT MEMBER ID
+            cur.execute("SELECT * FROM register_training WHERE member_id = %s", (session['member_id'],))
+            my_personal_training = cur.fetchall()
+            print(my_personal_training)
+
+            cur.execute("SELECT * FROM registers_classes WHERE member_id = %s", (session['member_id'],))
+            my_classes = cur.fetchall()
+            print(my_classes)
+
+            # get ALL upcoming schedule for member
+            cur.execute("SELECT * FROM classes")
+            classes = cur.fetchall()
+            print(classes)
+
+            cur.execute("SELECT * FROM personal_training")
+            personal_training = cur.fetchall()
+            print(personal_training)
+
+            # get achievements
+            cur.execute("""
+                SELECT *
+                FROM achieved_by ab
+                JOIN fitness_achievement fa ON ab.achievement_id = fa.achievement_id
+                WHERE ab.member_id = %s""", (session['member_id'],))
+            my_achievements = cur.fetchall()
+            print(my_achievements)
+
+            cur.close()
+            return render_template('index.html', my_billings=my_billings, classes=classes, personal_training=personal_training, my_personal_training=my_personal_training, my_classes=my_classes, my_achievements=my_achievements)
     else:
         return render_template('index.html')
 
