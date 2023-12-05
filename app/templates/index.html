@@ -1,6 +1,112 @@
 {% extends 'base.html' %} {% block title %}UOttawa Health Club{% endblock %} {%
 block content %}
 <section>
-    <h1 id="uottawa">uottawa best skool fr</h1>
+    {% if session["role"] == "Administrator" %}
+    <div class="subtitle-container">
+        <h2>Update Schedule 📆</h2>
+        <div class="subtitle-container-right">
+            <a href="/add_class" class="add-btn">+ Add New Class</a>
+            <a href="/add_training" class="add-btn">+ Add New Training</a>
+        </div>
+    </div>
+    {% if classes %}
+    <ul class="scrollable-list">
+        {% for class in classes %}
+        <li>
+            <div class="card">
+                <a href="/class/{{ class[0] }}">
+                    <h3>Group Training</h3>
+                    <p>Class ID #{{ class[0] }}</p>
+                    <p>⭐️{{ class[1] }} out of 5⭐️</p>
+                    <p>{{ class[2] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No classes available.</p>
+    {% endif %} {% if personal_training %}
+    <ul class="scrollable-list">
+        {% for training in personal_training %}
+        <li>
+            <div class="card">
+                <a href="/training/{{ training[0] }}">
+                    <h3>Personal Training</h3>
+                    <p>Training ID #{{ training[0] }}</p>
+                    <p>{{ training[1] }}</p>
+                    <p>Notes: {{ training[2] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No personal training available.</p>
+    {% endif %}
+
+    <h2>Room Bookings 🚪</h2>
+    {% if room_bookings %}
+    <ul class="scrollable-list">
+        {% for room in room_bookings %}
+        <li>
+            <div class="card">
+                <a href="/room/{{ room[0] }}">
+                    <h3>Room Booking</h3>
+                    <p>Room #{{ room[1] }}</p>
+                    <p>{{ room[2] }}</p>
+                    <p>{{ room[3] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No room booking available.</p>
+    {% endif %}
+
+    <div class="subtitle-container">
+        <h2>Fitness Equipment 🏋️</h2>
+        <div class="subtitle-container-right">
+            <a href="/add_equipment" class="add-btn">+ Add New Equipment</a>
+        </div>
+    </div>
+    {% if fitness_eqp %}
+    <ul class="scrollable-list">
+        {% for eqp in fitness_eqp %}
+        <li>
+            <div class="circle-card">
+                <a href="/fitness_eqp/{{ eqp[0] }}">
+                    <p>{{ eqp[0] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No fitness equipment available.</p>
+    {% endif %}
+
+    <h2>Billings 💸</h2>
+    {% if billings %}
+    <ul class="scrollable-list">
+        {% for bill in billings %}
+        <li>
+            <div class="circle-card">
+                <a href="/billings/{{ bill[0] }}">
+                    <p>{{ bill[0] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No billings available.</p>
+    {% endif %} {% else %}
+
+    <div id="uottawa">
+        <h1>uottawa best skool fr</h1>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}

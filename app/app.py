@@ -4,7 +4,7 @@ from psycopg2 import pool
 import traceback
 from flask import session
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 secret_key = secrets.token_urlsafe(16)
@@ -12,7 +12,7 @@ app.secret_key = secret_key
 
 # database pool - use this instead of connections since its more efficient
 db_pool = psycopg2.pool.SimpleConnectionPool(1, 20,
-                                             database="final_december3",
+                                             database="Final_December4",
                                              user="postgres",
                                              password="postgres",
                                              host="localhost",
@@ -32,21 +32,40 @@ def index():
             conn = get_db_connection()
             cur = conn.cursor()
 
-            # TODO get schedules - consolidated into 1 group
-            # TODO get room bookings
-            # TODO get fitness equipment
+            # get schedules - consolidated into 1 group
+            cur.execute("SELECT * FROM classes")
+            classes = cur.fetchall()
+            print(classes)
+
+            cur.execute("SELECT * FROM personal_training")
+            personal_training = cur.fetchall()
+            print(personal_training)
+
+            # get room bookings
+            cur.execute("SELECT * FROM room_bookings")
+            room_bookings = cur.fetchall()
+            print(room_bookings)
+
+            # get fitness equipment
+            cur.execute("SELECT * FROM fitness_eqp")
+            fitness_eqp = cur.fetchall()
+            print(fitness_eqp)
 
             # get billings
             cur.execute("SELECT * FROM billing")
             billings = cur.fetchall()
-            print("billings: ")
+            print(billings)
+
 
             cur.close()
-            
-            pass
-            
     
-    return render_template('index.html')
+            return render_template('index.html', classes=classes, personal_training=personal_training, room_bookings=room_bookings, fitness_eqp=fitness_eqp, billings=billings)
+        elif session['role'] == 'Trainer':
+            return "TRAINER"
+        elif session['role'] == 'Member':
+            return "Member"
+    else:
+        return render_template('index.html')
 
 @app.route('/register', methods=['GET'])
 def register():
@@ -135,9 +154,6 @@ def handle_register2():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        conn = get_db_connection()
-        cur = conn.cursor()
-
         query = "INSERT INTO users (username, user_password, user_role) VALUES (%s, %s, %s) RETURNING user_id"
         cur.execute(query, (session["username"], session["password"], session["role"])) 
         session.pop('password', None)
@@ -202,11 +218,150 @@ def handle_login():
             return redirect(url_for('index'))
         else:
             return 'Invalid username or password'
-        
+    
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.clear()
+
     return redirect(url_for('index'))
+
+def create_new_booking(conn):
+    try:
+        cur = conn.cursor()
+
+        # Calculate the start and end times
+        start_time = datetime.now()
+        end_time = start_time + timedelta(hours=1)
+        formatted_start_time = start_time.strftime('%Y-%m-%d %H:%M:%S')
+        formatted_end_time = end_time.strftime('%Y-%m-%d %H:%M:%S')
+
+        # Make a new booking
+        booking_query = "INSERT INTO room_bookings (room_number, start_time, end_time) VALUES (%s, %s, %s) RETURNING booking_id"
+        cur.execute(booking_query, (1, formatted_start_time, formatted_end_time))
+
+        booking_id = cur.fetchone()[0]
+        conn.commit()
+        return booking_id
+
+    except Exception as e:
+        print("Error creating booking:", e)
+        raise  # Re-raise the exception to handle it in the calling function
+
+    finally:
+        cur.close()
+
+@app.route('/add_class')
+def add_class():
+    if 'username' not in session or session['role'] != 'Administrator':
+        return redirect(url_for('index'))
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        # Create a new booking
+        booking_id = create_new_booking(conn)
+
+        # Insert into classes table
+        class_query = "INSERT INTO classes (rating, session_date, booking_id) VALUES (%s, %s, %s) RETURNING session_id"
+        cur.execute(class_query, (0, datetime.today().strftime('%Y-%m-%d'), booking_id))
+
+        new_class_id = cur.fetchone()[0]
+
+        conn.commit()
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+
+    return redirect(url_for('class_details', class_id=new_class_id))
+
+@app.route('/add_training')
+def add_training():
+    if 'username' not in session or session['role'] != 'Administrator':
+        return redirect(url_for('index'))
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        # Create a new booking
+        booking_id = create_new_booking(conn)
+
+        # Insert into training table
+        training_query = "INSERT INTO personal_training (session_date, booking_id, notes) VALUES (%s, %s, %s) RETURNING session_id"
+        cur.execute(training_query, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), booking_id, "N/A"))
+
+        new_training_id = cur.fetchone()[0]
+
+        conn.commit()
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+
+    return redirect(url_for('training_details', training_id=new_training_id))
+
+
+@app.route('/class/<int:class_id>')
+def class_details(class_id):
+    print(session)
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    return render_template('class_details.html', class_id=class_id)
+
+@app.route('/training/<int:training_id>')
+def training_details(training_id):
+    print(session)
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    return render_template('training_details.html', training_id=training_id)
+
+@app.route('/add_equipment')
+def add_equipment():
+    if 'username' not in session or session['role'] != 'Administrator':
+        return redirect(url_for('index'))
+    
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        # Insert into training table
+        training_query = "INSERT INTO personal_training (session_date, booking_id, notes) VALUES (%s, %s, %s) RETURNING session_id"
+        cur.execute(training_query, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), booking_id, "N/A"))
+
+        new_training_id = cur.fetchone()[0]
+
+        conn.commit()
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+    
+    return redirect(url_for('equipment_details', class_id=new_training_id))
 
 if __name__ == '__main__':
     app.run(debug = True)

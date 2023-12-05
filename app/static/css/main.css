@@ -44,10 +44,103 @@ header {
 
 #uottawa {
     text-align: center;
-    padding: 250px 0;
     transition: text-shadow 0.3s ease;
+}
+
+#uottawa h1 {
+    padding: 250px 0;
+    text-align: center;
 }
 
 #uottawa:hover {
     text-shadow: 0 0 10px darkred;
+}
+
+section {
+    padding-left: 30px;
+}
+
+.card {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    border-left: 12px solid red;
+    border-right: 12px solid red;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 16px;
+    padding: 16px 64px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.card h3 {
+    color: #333;
+    margin-top: 0;
+}
+
+.card p {
+    color: #666;
+    line-height: 1.5;
+}
+
+ul {
+    display: flex;
+    padding: 0;
+    list-style-type: none;
+}
+
+li {
+    margin-right: 20px;
+}
+.circle-card {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    font-size: 20px;
+}
+
+.circle-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.circle-card p {
+    margin: 0;
+}
+
+.subtitle-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.subtitle-container-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 15px;
+    gap: 20px;
+}
+
+.add-btn {
+    margin-left: 10px;
+    font-size: 24px;
+    line-height: 24px;
+    text-decoration: none;
+    padding-right: 60px;
+    color: #d20000;
+}
+
+.scrollable-list {
+    max-height: 400px;
+    overflow-y: auto;
 }
