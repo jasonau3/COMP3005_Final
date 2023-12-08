@@ -103,7 +103,6 @@ block content %}
     {% else %}
     <p>No billings available.</p>
     {% endif %} {% elif session["role"] == "Trainer" %}
-
     <h3>Your Training Sessions 📆</h3>
     {% if classes %}
     <ul class="scrollable-list">
@@ -114,7 +113,6 @@ block content %}
                     <h3>Group Training</h3>
                     <p>Class ID #{{ class[0] }}</p>
                     <p>⭐️{{ class[1] }} out of 5⭐️</p>
-                    <p>{{ class[2] }}</p>
                 </a>
             </div>
         </li>
@@ -158,9 +156,11 @@ block content %}
     {% endif %} {% elif session["role"] == "Member" %}
 
     <div class="subtitle-container">
-        <h2>Billing: TODO due TODO 📆</h2>
+        <h2>Billing: ${{my_bill_amount}} due {{my_bill_date}} 📆</h2>
         <div class="subtitle-container-right">
-            <h3 style="padding-right: 30px">✨ TODO loyalty points ✨</h3>
+            <h3 style="padding-right: 30px">
+                ✨ {{my_loaylty_points}} loyalty points ✨
+            </h3>
         </div>
     </div>
 
@@ -219,6 +219,23 @@ block content %}
     </ul>
     {% else %}
     <p>No classes available.</p>
+    {% endif %} {% if personal_training %}
+    <ul class="scrollable-list">
+        {% for training in personal_training %}
+        <li>
+            <div class="card">
+                <a href="/training/{{ training[0] }}">
+                    <h3>Personal Training</h3>
+                    <p>Training ID #{{ training[0] }}</p>
+                    <p>{{ training[1] }}</p>
+                    <p>Notes: {{ training[2] }}</p>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No personal training available.</p>
     {% endif %}
 
     <h3>Your Achievements 🏅</h3>
