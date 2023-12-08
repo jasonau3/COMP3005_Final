@@ -98,42 +98,42 @@ CREATE TABLE IF NOT EXISTS is_trainer (
 
 -- classes
 CREATE TABLE IF NOT EXISTS classes (
-	session_id 		SERIAL,
+	c_session_id 		SERIAL,
 	rating 			INTEGER,
-	session_date 	DATE,
-	booking_id		INTEGER,
+	c_session_date 	DATE,
+	c_booking_id		INTEGER,
 	
-	PRIMARY KEY (session_id),
-	FOREIGN KEY (booking_id) REFERENCES room_bookings
+	PRIMARY KEY (c_session_id),
+	FOREIGN KEY (c_booking_id) REFERENCES room_bookings
 );
 
 -- taught by
 CREATE TABLE IF NOT EXISTS taught_by (
 	trainer_id 		INTEGER,
-	session_id 		INTEGER,
+	c_session_id 		INTEGER,
 	
-	PRIMARY KEY (trainer_id, session_id),
+	PRIMARY KEY (trainer_id, c_session_id),
 	FOREIGN KEY (trainer_id) REFERENCES trainers,
-	FOREIGN KEY (session_id) REFERENCES classes
+	FOREIGN KEY (c_session_id) REFERENCES classes
 );
 
 -- register class
 CREATE TABLE IF NOT EXISTS registers_classes (
-	session_id 		INTEGER,
+	c_session_id 		INTEGER,
 	member_id 		INTEGER,
 	
-	PRIMARY KEY (session_id, member_id),
-	FOREIGN KEY (session_id) REFERENCES classes,
+	PRIMARY KEY (c_session_id, member_id),
+	FOREIGN KEY (c_session_id) REFERENCES classes,
 	FOREIGN KEY (member_id) REFERENCES members
 );
 
 -- oversees classes
 CREATE TABLE IF NOT EXISTS oversees_classes (
-	session_id 		INTEGER,
+	c_session_id 		INTEGER,
 	admin_id 		INTEGER,
 	
-	PRIMARY KEY (session_id, admin_id),
-	FOREIGN KEY (session_id) REFERENCES classes,
+	PRIMARY KEY (c_session_id, admin_id),
+	FOREIGN KEY (c_session_id) REFERENCES classes,
 	FOREIGN KEY (admin_id) REFERENCES administrators
 );
 
@@ -188,42 +188,42 @@ CREATE TABLE IF NOT EXISTS manage_bookings (
 
 -- personal_training
 CREATE TABLE IF NOT EXISTS personal_training (
-	session_id 			SERIAL,
-	session_date		TIMESTAMP,
+	p_session_id 			SERIAL,
+	p_session_date		TIMESTAMP,
 	notes				VARCHAR(200),
-	booking_id			INTEGER,
+	p_booking_id			INTEGER,
 	
-	PRIMARY KEY (session_id),
-	FOREIGN KEY (booking_id) REFERENCES room_bookings
+	PRIMARY KEY (p_session_id),
+	FOREIGN KEY (p_booking_id) REFERENCES room_bookings
 );
 
 -- register_training
 CREATE TABLE IF NOT EXISTS register_training (
-	session_id 	INTEGER,
+	p_session_id 	INTEGER,
 	member_id 	INTEGER,
 	
-	PRIMARY KEY (session_id, member_id),
-	FOREIGN KEY (session_id) REFERENCES personal_training,
+	PRIMARY KEY (p_session_id, member_id),
+	FOREIGN KEY (p_session_id) REFERENCES personal_training,
 	FOREIGN KEY (member_id) REFERENCES members
 );
 
 -- conducts
 CREATE TABLE IF NOT EXISTS conducts (
-	session_id 	INTEGER,
+	p_session_id 	INTEGER,
 	trainer_id 	INTEGER,
 	
-	PRIMARY KEY (session_id, trainer_id),
-	FOREIGN KEY (session_id) REFERENCES personal_training,
+	PRIMARY KEY (p_session_id, trainer_id),
+	FOREIGN KEY (p_session_id) REFERENCES personal_training,
 	FOREIGN KEY (trainer_id) REFERENCES trainers
 );
 
 -- oversees_training
 CREATE TABLE IF NOT EXISTS oversees_training (
-	session_id 	INTEGER,
+	p_session_id 	INTEGER,
 	admin_id 	INTEGER,
 	
-	PRIMARY KEY (session_id, admin_id),
-	FOREIGN KEY (session_id) REFERENCES personal_training,
+	PRIMARY KEY (p_session_id, admin_id),
+	FOREIGN KEY (p_session_id) REFERENCES personal_training,
 	FOREIGN KEY (admin_id) REFERENCES administrators
 );
 
@@ -271,3 +271,24 @@ CREATE TRIGGER trigger_calculate_bmi
 BEFORE INSERT OR UPDATE ON members
 FOR EACH ROW
 EXECUTE FUNCTION calculate_bmi();
+
+INSERT INTO fitness_achievement (description)
+VALUES ('You Registered For Your First Class :D');
+
+CREATE OR REPLACE FUNCTION add_first_class_achievement()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- verify if its user's first registration 
+    IF (SELECT COUNT(*) FROM register_training WHERE member_id = NEW.member_id) = 1 THEN
+        -- add to user's achivement list
+        INSERT INTO achieved_by (achievement_id, member_id)
+        VALUES (1, NEW.member_id);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER first_class_achievement_trigger
+AFTER INSERT ON register_training
+FOR EACH ROW
+EXECUTE FUNCTION add_first_class_achievement();

@@ -1,4 +1,90 @@
-{% extends 'base.html' %} {% block title %}UOttawa Health Club{% endblock %} {%
-block content %}
-<h1>class #{{class_id}}</h1>
+{% extends 'base.html' %} {% block title %}UOttawa Health Club{% endblock %} 
+
+{% block content %}
+	{% if session['role'] == 'Member' %}
+		<h1>GROUP FITNESS CLASS</h1>
+		<span>{{ session_date }}</span>
+		<span>TRAINER: {{ trainer_id}} {{ trainer_name }}</span>
+		
+		<div>
+			<label>Rating:</label>
+			<span>{{ rating }}</span><br>
+		</div>
+			
+		<div>
+			<label>Spots left:</label>
+			<span></span>
+		</div>
+
+		{% if registered == True %}
+		<form action="/class_member_cancel" method="post">
+			<div>
+				<button type="submit" name="cancel_member" value={{class_id}} id="cancel_member">Cancel</button>
+			</div>
+		</form>
+		
+		{% else %}
+		<form action="/class_member_register" method="post">
+			<div>
+				<button type="submit" name="register_member" value={{class_id}} id="register_member">Register</button>
+			</div>
+		</form>
+		{% endif %}
+ 
+	{% else %}
+		
+		{% if session['role'] == 'Trainer' %}
+			<h1>GROUP FITNESS CLASS</h1>
+			<span>{{ session_date }}</span>
+			<span>TRAINER: {{ trainer_id}} {{ trainer_name }}</span>
+			
+			<span>Participants: </span>
+			{% for data in memberInfo %}
+			{{ data[0] }}{{ data[1] }}{{ data[2] }}<br>
+			{% endfor %}
+			
+			<div>
+				<label>Spots left:</label>
+				<span></span>
+			</div>
+	
+		{% else %}
+		
+			{% if sent_from == 'addClass' %}
+				<h1>GROUP FITNESS CLASS</h1>
+				
+				<form action="add_trainer_admin" method="POST">
+					<div>
+						<label>Trainer:</label>
+						<select id="classTrainer" name="classTrainer" required>
+							<option value="">Select a trainer...</option>
+							{% for trainerOption in trainers %}
+							<option value={{trainerOption[0]}}>{{trainerOption[1]}}</option>
+							{% endfor %}
+						</select>
+					</div>
+					
+					<div>
+						<button type="submit" name="newClass" value={{class_id}} id="newClass">Add Trainer</button>
+					</div>
+				</form>
+		
+		
+			{% else %}
+				<h1>GROUP FITNESS CLASS</h1>
+				<span>{{ session_date }}</span>
+				<span>TRAINER: {{ trainer_id}} {{ trainer_name }}</span>
+			
+				<span>Participants: </span>
+				{% for data in memberInfo %}
+				{{ data[0] }}{{ data[1] }}{{ data[2] }}<br>
+				{% endfor %}
+				
+				<div>
+					<label>Spots left:</label>
+					<span></span>
+				</div>
+			{% endif %}
+		{% endif %}
+	{% endif %}
 {% endblock %}
