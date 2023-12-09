@@ -10,14 +10,20 @@ Sofia AO TODOoooooooo TDOO
 
 ## Getting Started
 ### Dependencies
-Python 3.8, pip, psycopg2, Flask, PostgreSQL
+Python 3.8
+pip
+psycopg2
+Flask
+PostgreSQL
 
 ### Installing
-1. Download from GitHub
-2. Install pip dependecies 
+1. Download from GitHub. Clone the repository to your local machine
 ```
 git pull https://github.com/jasonau3/COMP3005_Final.git
-pip install flask, psycopg2
+```
+2. Install pip dependecies 
+```
+pip install flask psycopg2
 ```
 
 ### Run Program
