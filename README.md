@@ -4,7 +4,7 @@ A group summative final project using SQL queries and Flask to conenct to the da
 # Contributors
 Jason Au - jasonau@cmail.carleton.ca - 101220472 <br />
 Jonathan Lee - johnslee@cmail.carleton.ca - 101163311 <br />
-Sofia AO TODOoooooooo TDOO <br />
+Sofia Alfsonso Ortega - sofiaalfonsoortega@cmail.carleton.ca - 101192515 <br />
 
 **Project Demo**: TODO YOUTUBE LINK HERE PLEASE TODOOOOOOOOOOOOOOOOOOOOOO
 
