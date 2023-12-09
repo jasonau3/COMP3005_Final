@@ -1,0 +1,31 @@
+{% extends 'base.html' %} {% block title %}UOttawa Health Club{% endblock %} {%
+block content %} {% if session['role'] == 'Administrator' %}
+<h1>FITNESS EQUIPMENT</h1>
+<form action="/eqpMaintenance" method="post">
+    <div class="">
+        <label for="eqpNumber">Equipment Number:</label>
+        <span>{{fitness_eqp_id}}</span>
+        <input
+            type="hidden"
+            id="eqpNumber"
+            name="fitness_eqp_id"
+            value="{{fitness_eqp_id}}"
+        />
+    </div>
+
+    <div class="">
+        <label for="maintenanceDate">Recent Maintenance Date:</label>
+        <input
+            type="datetime-local"
+            id="maintenanceDate"
+            name="maintenanceDate"
+            value="{{ maintenance_date }}"
+            required
+        />
+    </div>
+    <div>
+        <button type="submit" name="buttonBoi">Save</button>
+    </div>
+</form>
+
+{% endif %} {% endblock %}
