@@ -1,4 +1,50 @@
 {% extends 'base.html' %} {% block title %}UOttawa Health Club{% endblock %} {%
-block content %}
-<h1>billings #{{billing_id}}</h1>
-{% endblock %}
+block content %} {% if session['role'] == 'Administrator' %}
+<h1>BILLING</h1>
+<form action="/billingInfo" method="POST">
+    <div class="">
+        <label for="billing_id">Bill ID:</label>
+        <span>{{billing_id}}</span>
+        <input
+            type="hidden"
+            id="billing_id"
+            name="billing_id"
+            value="{{billing_id}}"
+        />
+    </div>
+
+    <div class="">
+        <label for="membershipCost">Cost of Membership:</label>
+        <input
+            type="number"
+            id="membershipCost"
+            name="membershipCost"
+            value="{{membershipCost}}"
+        />
+    </div>
+
+    <label for="lastPayment">Last Date Payed:</label>
+    <input
+        type="datetime-local"
+        id="lastPayment"
+        name="lastPayment"
+        value="{{lastPayment}}"
+        required
+    />
+
+    <div class="">
+        <label for="loyaltyPoints">Loyalty Points:</label>
+        <input
+            type="number"
+            id="loyaltyPoints"
+            name="loyaltyPoints"
+            value="{{loyaltyPoints}}"
+        />
+    </div>
+
+    <div>
+        <button type="submit" name="buttonGirl">Save</button>
+    </div>
+</form>
+
+{% endif %} {% endblock %}

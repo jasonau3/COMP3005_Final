@@ -480,6 +480,7 @@ def add_equipment():
     return redirect(url_for('equipment_details', fitness_eqp_id=new_fitness_eqp))
 
 
+
 # This function handles all the logic needed to display information for a given class
 @app.route('/class/<int:class_id>')
 def class_details(class_id):
@@ -837,26 +838,233 @@ def add_ptrainer_admin():
     
     
     return redirect(url_for('index'))
-    
-    
-# This function handles all the logic needed to display information for a given piece of equipment
-@app.route('/fitness_eqp/<int:fitness_eqp_id>')
-def equipment_details(fitness_eqp_id):
+
+# This function handles all the logic needed to display information for a room booking
+@app.route('/room/<int:booking_id>')
+def room_details(booking_id):
     if 'username' not in session:
         return redirect(url_for('index'))
 
-    return render_template('equipment_details.html', fitness_eqp_id=fitness_eqp_id)
+    conn = None
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        query = "SELECT room_number FROM room_bookings WHERE booking_id=%s"
+        cur.execute(query, (booking_id,))
+        roomNumber = cur.fetchone()[0]
+        
+        query = "SELECT start_time FROM room_bookings WHERE booking_id=%s"
+        cur.execute(query, (booking_id,))
+
+        start_time = cur.fetchone()[0]
+        
+        query = "SELECT end_time FROM room_bookings WHERE booking_id=%s"
+        cur.execute(query, (booking_id,))
+
+        end_time = cur.fetchone()[0]
+
+        conn.commit()
+    
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+
+    return render_template('room_booking.html', booking_id=booking_id, roomNumber=roomNumber, start_time=start_time, end_time=end_time)
+
+@app.route('/bookingForm', methods=['POST'])
+def bookingForm():
+    conn = None
+    
+    booking_id = request.form["booking_id"]
+    room_num = request.form["room_number"]
+    start_time = request.form["startTime"]
+    end_time = request.form["endTime"]
+    
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        query = "UPDATE room_bookings SET room_number = %s, start_time = %s, end_time = %s WHERE booking_id = %s"
+        cur.execute(query, (room_num, start_time, end_time, booking_id))
+        
+        conn.commit()
+    
+    
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+    
+    
+    return redirect(url_for('index'))
 
 
+# This function handles all the logic needed to display information for a given billing
 # This function handles all the logic needed to display information for a given billing
 @app.route('/billings/<int:billing_id>')
 def billing_details(billing_id):
     if 'username' not in session:
         return redirect(url_for('index'))
 
-    return render_template('billing_detail.html', billing_id=billing_id)
+    conn = None
 
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        query = "SELECT cost_of_membership FROM billing WHERE bill_id=%s"
+        cur.execute(query, (billing_id,))
+        membershipCost = cur.fetchone()[0]
+        
+        query = "SELECT last_date_payed FROM billing WHERE bill_id=%s"
+        cur.execute(query, (billing_id,))
+
+        lastPayment = cur.fetchone()[0]
+        formatted_lastPayment = lastPayment.strftime('%Y-%m-%dT%H:%M')
+        
+        query = "SELECT loyalty_points FROM billing WHERE bill_id=%s"
+        cur.execute(query, (billing_id,))
+
+        loyaltyPoints = cur.fetchone()[0]
+
+        conn.commit()
+    
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+
+    return render_template('billing_detail.html', billing_id=billing_id, membershipCost=membershipCost, lastPayment=formatted_lastPayment, loyaltyPoints=loyaltyPoints)
+
+
+
+# This function handles all the logic needed to update billing
+@app.route('/billingInfo', methods=['POST'])
+def billingInfo():
+    conn = None
+    
+    bill_id = request.form["billing_id"]
+    membershipCost = request.form["membershipCost"]
+    lastPayment = request.form["lastPayment"]
+    loyaltyPoints = request.form["loyaltyPoints"]
+    
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        query = "UPDATE billing SET loyalty_points = %s, cost_of_membership = %s, last_date_payed = %s WHERE bill_id = %s"
+        cur.execute(query, (loyaltyPoints, membershipCost, lastPayment, bill_id))
+        
+        conn.commit()
+    
+    
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+    
+    
+    return redirect(url_for('index'))
+
+
+# This function handles all the logic needed to display information for a given piece of equipment
+@app.route('/fitness_eqp/<int:fitness_eqp_id>')
+def equipment_details(fitness_eqp_id):
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    
+    conn = None
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        query = "SELECT recent_maintenance_date FROM fitness_eqp WHERE equipment_id=%s"
+        cur.execute(query, (fitness_eqp_id,))
+
+        maintenance_date = cur.fetchone()[0]
+        formatted_maintenance_date = maintenance_date.strftime('%Y-%m-%dT%H:%M')
+
+
+        conn.commit()
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+
+    return render_template('fitness_equipment.html', fitness_eqp_id=fitness_eqp_id, maintenance_date=formatted_maintenance_date)
+
+@app.route('/eqpMaintenance', methods=['POST'])
+def eqpMaintenance():
+    conn = None
+    
+    equipNum = request.form["fitness_eqp_id"]
+    mainDate = request.form["maintenanceDate"]
+    
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+      
+        query = "UPDATE fitness_eqp SET recent_maintenance_date = %s WHERE equipment_id = %s"
+        cur.execute(query, (mainDate, equipNum))
+
+        conn.commit()
+    
+    
+    except Exception as e:
+        print("Database not connected or query error")
+        print("Error: ", e) 
+        traceback.print_exc()  # Print traceback
+        return "Error connecting to the database. Please verify the database is running and the credentials are correct."
+    
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_db_connection(conn)
+    
+    
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
     app.run(debug = True)
+

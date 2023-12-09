@@ -1,0 +1,49 @@
+{% extends 'base.html' %} {% block title %}UOttawa Health Club{% endblock %} {%
+block content %} {% if session['role'] == 'Administrator' %}
+<h1>ROOM BOOKING</h1>
+<form action="/bookingForm" method="POST">
+    <div class="">
+        <label for="bookingNumber">Booking Number:</label>
+        <span>{{booking_id}}</span>
+        <input
+            type="hidden"
+            id="bookingNumber"
+            name="booking_id"
+            value="{{booking_id}}"
+        />
+    </div>
+
+    <div class="">
+        <label for="roomNumber">Room Number:</label>
+        <input
+            type="number"
+            id="roomNumber"
+            name="room_number"
+            value="{{roomNumber}}"
+        />
+    </div>
+
+    <label for="startTime">Start Time:</label>
+    <input
+        type="datetime-local"
+        id="startTime"
+        name="startTime"
+        value="{{start_time}}"
+        required
+    />
+
+    <label for="endTime">End Time:</label>
+    <input
+        type="datetime-local"
+        id="endTime"
+        name="endTime"
+        value="{{end_time}}"
+        required
+    />
+
+    <div>
+        <button type="submit" name="buttonBoy">Save</button>
+    </div>
+</form>
+
+{% endif %} {% endblock %}
