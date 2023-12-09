@@ -2,7 +2,7 @@
 A group summative final project using SQL queries and Flask to conenct to the database. **Please see the project_report for requirements 2.1 to 2.4**
 
 # Contributors
-Jason Au - jasonau@cmail.carleton.ca - 101220472 
+Jason Au - jasonau@cmail.carleton.ca - 101220472 <br />
 Jonathan Lee - johnslee@cmail.carleton.ca - 101163311 <br />
 Sofia AO TODOoooooooo TDOO <br />
 
