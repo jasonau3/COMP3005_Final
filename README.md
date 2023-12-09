@@ -1,5 +1,5 @@
 # COMP3005_Final - UOttawa Health Club
-A group summative final project using SQL queries and Flask to conenct to the database
+A group summative final project using SQL queries and Flask to conenct to the database. **Please see the project_report for requirements 2.1 to 2.4**
 
 # Contributors
 Jason Au - jasonau@cmail.carleton.ca - 101220472
