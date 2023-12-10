@@ -6,7 +6,7 @@ Jason Au - jasonau@cmail.carleton.ca - 101220472 <br />
 Jonathan Lee - johnslee@cmail.carleton.ca - 101163311 <br />
 Sofia Alfsonso Ortega - sofiaalfonsoortega@cmail.carleton.ca - 101192515 <br />
 
-**Project Demo**: [https://youtu.be/fwwrzWvDl0A](url)
+**Project Demo**: [https://youtu.be/fwwrzWvDl0A](https://youtu.be/fwwrzWvDl0A)
 
 ## Getting Started
 ### Dependencies
